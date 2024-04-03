@@ -23,7 +23,7 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public String signUp(@Valid @ModelAttribute("memberDTO") MemberDTO memberDTO, BindingResult bindingResult){
+    public String signUpMember(@Valid @ModelAttribute("memberDTO") MemberDTO memberDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return "member/signForm";
         }

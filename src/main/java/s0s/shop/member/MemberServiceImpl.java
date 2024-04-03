@@ -24,6 +24,7 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = Member.builder()
                 .username(memberDTO.getUsername())
+                //비밀번호 암호화하기
                 .password(memberDTO.getPassword())
                 .nickname(memberDTO.getNickname())
                 .email(memberDTO.getEmail())
