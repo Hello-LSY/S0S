@@ -17,6 +17,7 @@ public class MemberController {
 
     private final MemberServiceImpl memberService;
 
+
     @GetMapping("/signup")
     public String signUpForm(){
         return "member/signForm";
@@ -31,6 +32,11 @@ public class MemberController {
         memberService.join(memberDTO);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/login")
+    public String login(){
+        return "member/loginForm";
     }
 
 }

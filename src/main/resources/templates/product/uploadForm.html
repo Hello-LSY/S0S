@@ -14,11 +14,14 @@
     </div>
     <div>
         <label for="category">Category:</label>
-        <input type="text" id="category" name="category" th:required="required">
-    </div>
-    <div>
-        <label for="writerName">Writer Name:</label>
-        <input type="text" id="writerName" name="writerName" th:required="required">
+        <select id="category" name="category" required>
+            <option value="outer">아우터</option>
+            <option value="top">상의</option>
+            <option value="pants">하의</option>
+            <option value="shoes">신발</option>
+            <option value="acc">악세서리</option>
+            <option value="bag">가방</option>
+        </select><br>
     </div>
     <div>
         <label for="price">Price:</label>

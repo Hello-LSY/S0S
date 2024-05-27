@@ -18,11 +18,25 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ProductDTO {
+
+    private Long id;
     private String productName;
     private String category;
     private String writerName;
     private int price;
+    private LocalDateTime createdDate;
     private String description;
     private List<String> imageUrls;
 
+    @Builder
+    public ProductDTO(Long id, String productName, String category, String writerName, int price, LocalDateTime createdDate, String description, List<String> imageUrls) {
+        this.id = id;
+        this.productName = productName;
+        this.category = category;
+        this.writerName = writerName;
+        this.price = price;
+        this.createdDate = createdDate;
+        this.description = description;
+        this.imageUrls = imageUrls;
+    }
 }

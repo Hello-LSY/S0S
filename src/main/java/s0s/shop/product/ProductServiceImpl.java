@@ -4,15 +4,26 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import s0s.shop.member.CustomUser;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,13 +31,14 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService{
 
     final private ProductRepository productRepository;
+    final private ResourceLoader resourceLoader;
 
     @Value("${image.upload.directory}")
     String imageUploadDirectory;
 
     @Override
     @Transactional
-    public void uploadProduct(ProductDTO productDTO, MultipartFile[] imageFiles) {
+    public void uploadProduct(ProductDTO productDTO, String nickname, MultipartFile[] imageFiles) {
         if (productDTO == null) {
             throw new IllegalArgumentException("상품정보가 유효하지 않습니다.");
         }
@@ -35,7 +47,7 @@ public class ProductServiceImpl implements ProductService{
         Product product = Product.builder()
                 .productName(productDTO.getProductName())
                 .category(productDTO.getCategory())
-                .writerName(productDTO.getWriterName())
+                .writerName(nickname)
                 .price(productDTO.getPrice())
                 .description(productDTO.getDescription())
                 .build();
@@ -59,20 +71,53 @@ public class ProductServiceImpl implements ProductService{
         String fileExtension = imageFile.getOriginalFilename().substring(imageFile.getOriginalFilename().lastIndexOf("."));
         String savedFilename = uuid + fileExtension;
 
-        // 이미지 파일을 저장할 경로 설정
-        Path uploadPath = Paths.get(imageUploadDirectory, savedFilename);
-
-        // 이미지 파일 저장
         try {
+            // 이미지 파일을 저장할 경로 설정
+            Resource resource = resourceLoader.getResource(imageUploadDirectory);
+            File uploadDir = resource.getFile();
+            Path uploadPath = Paths.get(uploadDir.getAbsolutePath(), savedFilename);
+
+            // 이미지 파일 저장
             Files.copy(imageFile.getInputStream(), uploadPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 저장된 이미지 파일의 경로를 반환
+            return savedFilename;
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("이미지 파일을 저장하는 중에 오류가 발생했습니다.", e);
         }
-
-        // 저장된 이미지 파일의 경로를 반환
-        return savedFilename;
+    }
+    @Override
+    public List<Product> findAllProduct(){
+        List<Product> productList = productRepository.findAll();
+        Collections.reverse(productList);
+        return productList;
     }
 
+    @Override
+    public ProductDTO findProductById(Long productId){
+         Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("해당 아이디에 해당하는 상품을 찾을 수 없습니다."));
+
+        return convertToProductDTO(product);
+    }
+
+    @Override
+    public Page<Product> findAllProduct(int page, int size) {
+        return productRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate")));
+    }
+
+    private ProductDTO convertToProductDTO(Product product) {
+        return ProductDTO.builder()
+                .id(product.getId())
+                .productName(product.getProductName())
+                .category(product.getCategory())
+                .writerName(product.getWriterName())
+                .price(product.getPrice())
+                .createdDate(product.getCreatedDate())
+                .description(product.getDescription())
+                .imageUrls(product.getImageUrls())
+                .build();
+    }
 
 }

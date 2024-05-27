@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${productDetail.productName} + ' - Product Detail'">Product Detail</title>
+</head>
+<body>
+<h2 th:text="${productDetail.productName}"></h2>
+<p>Category: <span th:text="${productDetail.category}"></span></p>
+<p>createdDate: <span th:text="${productDetail.createdDate}"></span></p>
+<p>Writer: <span th:text="${productDetail.writerName}"></span></p>
+<p>Price: <span th:text="${productDetail.price}"></span></p>
+<p>Description: <span th:text="${productDetail.description}"></span></p>
+
+<h3>Images:</h3>
+    <div th:each="imageUrl : ${productDetail.imageUrls}">
+        <img th:src="@{'/images/' + ${imageUrl}}" style="width: 30%; height: auto;" />
+    </div>
+<div th:if="${productDetail.imageUrls.size() == 0}">
+    <p>No images available</p>
+</div>
+</body>
+</html>

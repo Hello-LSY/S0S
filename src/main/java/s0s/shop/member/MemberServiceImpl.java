@@ -1,6 +1,8 @@
 package s0s.shop.member;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,6 +12,7 @@ import java.util.Optional;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void join(MemberDTO memberDTO) {
@@ -22,10 +25,11 @@ public class MemberServiceImpl implements MemberService {
             role = Role.ADMIN;
         }
 
+
         Member member = Member.builder()
                 .username(memberDTO.getUsername())
-                //비밀번호 암호화하기
-                .password(memberDTO.getPassword())
+                //비밀번호 암호화 완료
+                .password(passwordEncoder.encode(memberDTO.getPassword()))
                 .nickname(memberDTO.getNickname())
                 .email(memberDTO.getEmail())
                 .gender(memberDTO.getGender())

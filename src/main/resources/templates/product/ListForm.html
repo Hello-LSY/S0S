@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+</head>
+<body>
+<h2>Product List</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Product Name</th>
+        <th>Category</th>
+        <th>Writer Name</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Image</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${productList}">
+        <td th:text="${product.id}"></td>
+        <td><a th:href="@{'/product/detail/' + ${product.id}}" th:text="${product.productName}"></a></td>
+        <td th:text="${product.category}"></td>
+        <td th:text="${product.writerName}"></td>
+        <td th:text="${product.price}"></td>
+        <td th:text="${product.description}"></td>
+        <td>
+            <img th:src="@{'/images/' + ${product.imageUrls[0]}}" style="width: 10%; height: auto;" />
+        </td>
+    </tr>
+    </tbody>
+</table>
+<a href="/product/upload">상품 등록</a>
+
+<!-- 페이징 링크 -->
+<div th:if="${totalPages > 1}">
+    <div>
+        <span th:if="${currentPage > 0}">
+            <a th:href="@{/product/list(page=0, size=${size})}">처음</a>
+            <a th:href="@{/product/list(page=${currentPage - 1}, size=${size})}">이전</a>
+        </span>
+
+        <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" th:class="${pageNum == currentPage} ? 'active'">
+            <a th:href="@{/product/list(page=${pageNum}, size=${size})}" th:text="${pageNum + 1}">1</a>
+        </span>
+
+        <span th:if="${currentPage < totalPages - 1}">
+            <a th:href="@{/product/list(page=${currentPage + 1}, size=${size})}">다음</a>
+            <a th:href="@{/product/list(page=${totalPages - 1}, size=${size})}">마지막</a>
+        </span>
+    </div>
+</div>
+
+</body>
+</html>
