@@ -9,13 +9,11 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import s0s.shop.member.CustomUser;
+import s0s.shop.wish.Wish;
+import s0s.shop.wish.WishRepository;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +29,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService{
 
     final private ProductRepository productRepository;
+    final private WishRepository wishRepository;
     final private ResourceLoader resourceLoader;
 
     @Value("${image.upload.directory}")
@@ -102,9 +101,12 @@ public class ProductServiceImpl implements ProductService{
         return convertToProductDTO(product);
     }
 
+    //페이징처리된 상품리스트
     @Override
     public Page<Product> findAllProduct(int page, int size) {
-        return productRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate")));
+        //등록날짜 DESC 페이징
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        return productRepository.findAll(pageRequest);
     }
 
     private ProductDTO convertToProductDTO(Product product) {
@@ -119,5 +121,18 @@ public class ProductServiceImpl implements ProductService{
                 .imageUrls(product.getImageUrls())
                 .build();
     }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("해당 아이디에 해당하는 상품을 찾을 수 없습니다."));
+
+        // 해당 상품의 모든 찜을 삭제
+        wishRepository.deleteAll(product.getWishes());
+        // 상품 삭제
+        productRepository.deleteById(productId);
+    }
+
 
 }

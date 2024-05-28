@@ -1,5 +1,6 @@
 package s0s.shop.product;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,4 +15,6 @@ public interface ProductService {
     public ProductDTO findProductById(Long productId);
 
     public Page<Product> findAllProduct(int page, int size);
+
+    void deleteProduct(Long productId);
 }

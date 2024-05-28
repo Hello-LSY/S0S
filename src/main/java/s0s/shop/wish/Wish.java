@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import s0s.shop.member.Member;
 import s0s.shop.product.Product;
 
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,11 +17,11 @@ public class Wish {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 

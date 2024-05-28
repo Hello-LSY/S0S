@@ -3,6 +3,8 @@ package s0s.shop.product;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import s0s.shop.member.CustomUser;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -51,9 +54,11 @@ public class ProductController {
         model.addAttribute("productList", productList);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("size", size);
 
         return "product/ListForm";
     }
+
 
     @GetMapping("/detail/{productId}")
     public String productDetail(@PathVariable Long productId, Model model){
@@ -62,6 +67,20 @@ public class ProductController {
 
         return "product/detailForm";
     }
+
+    @PostMapping("/delete/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
+        try {
+            // ProductService를 통해 해당 상품을 삭제
+            productService.deleteProduct(productId);
+            // 삭제가 성공하면 클라이언트에게 성공 메시지를 보냄
+            return ResponseEntity.ok("deleted");
+        } catch (Exception e) {
+            // 삭제 중에 오류가 발생하면 클라이언트에게 오류 메시지를 보냄
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
+        }
+    }
+
 
 }
 

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import s0s.shop.wish.Wish;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,6 +51,9 @@ public class Product {
         this.price = price;
         this.description = description;
     }
+    // Product 엔티티
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wish> wishes = new ArrayList<>();
 
     // 게시글에 이미지 URL 추가
     public void addImageUrl(String imageUrl) {

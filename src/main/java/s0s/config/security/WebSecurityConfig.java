@@ -34,6 +34,8 @@ public class WebSecurityConfig {
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/members/login", "/").permitAll()
+                                .requestMatchers("/product/upload").authenticated() // 업로드 페이지에 대해서는 인증이 필요
+
 //                                .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
