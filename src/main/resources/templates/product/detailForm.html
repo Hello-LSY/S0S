@@ -23,13 +23,13 @@
 
 <!-- 찜 버튼 추가 -->
 <form id="wishForm">
-    <input type="hidden" id="productId" th:value="${productDetail.id}" />
+    <input type="hidden" id="productIdToWish" th:value="${productDetail.id}" />
     <button type="button" onclick="addWish()">찜하기</button>
 </form>
 
 <!-- 상품 삭제 버튼 추가 -->
 <form id="deleteProductForm">
-    <input type="hidden" id="productId" th:value="${productDetail.id}" />
+    <input type="hidden" id="productIdToDelete" th:value="${productDetail.id}" />
     <button type="button" onclick="deleteProduct()">상품 삭제</button>
 </form>
 
