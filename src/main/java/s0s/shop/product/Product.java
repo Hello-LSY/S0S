@@ -43,6 +43,10 @@ public class Product {
     @ElementCollection
     private List<String> imageUrls = new ArrayList<>();
 
+    // Product 엔티티
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wish> wishes = new ArrayList<>();
+
     @Builder
     public Product(String productName, String category, String writerName, int price, String description) {
         this.productName = productName;
@@ -51,15 +55,21 @@ public class Product {
         this.price = price;
         this.description = description;
     }
-    // Product 엔티티
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Wish> wishes = new ArrayList<>();
+
+    public void updateProduct(String productName, String category, int price, String description) {
+        this.productName = productName;
+        this.category = category;
+        this.price = price;
+        this.description = description;
+    }
 
     // 게시글에 이미지 URL 추가
     public void addImageUrl(String imageUrl) {
         this.imageUrls.add(imageUrl);
     }
-
+    public void clearImageUrls() {
+        this.imageUrls.clear();
+    }
 
 }
 

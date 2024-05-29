@@ -2,12 +2,13 @@ package s0s.shop.product;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +23,10 @@ import java.util.Map;
 @RequestMapping("/product")
 public class ProductController {
 
-    private final ProductService productService; // UploadFileServiceImpl 대신 ProductService로 변경
+    private final ProductService productService;
+
     @GetMapping("/upload")
-    public String uploadForm(){
+    public String uploadForm() {
         return "product/uploadForm";
     }
 
@@ -32,13 +34,11 @@ public class ProductController {
     public String uploadProduct(@Valid @ModelAttribute("productDTO") ProductDTO productDTO,
                                 @RequestParam("imageFiles") MultipartFile[] imageFiles,
                                 BindingResult bindingResult,
-                                @AuthenticationPrincipal CustomUser customUser
-    ) {
+                                @AuthenticationPrincipal CustomUser customUser) {
         if (bindingResult.hasErrors()) {
             return "product/uploadForm";
         }
 
-        // 이미지 파일들과 함께 상품 정보를 서비스로 전달하여 상품을 업로드
         productService.uploadProduct(productDTO, customUser.getNickname(), imageFiles);
 
         return "redirect:/product/list";
@@ -59,9 +59,8 @@ public class ProductController {
         return "product/ListForm";
     }
 
-
     @GetMapping("/detail/{productId}")
-    public String productDetail(@PathVariable Long productId, Model model){
+    public String productDetail(@PathVariable Long productId, Model model) {
         ProductDTO productDTO = productService.findProductById(productId);
         model.addAttribute("productDetail", productDTO);
 
@@ -71,16 +70,35 @@ public class ProductController {
     @PostMapping("/delete/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
         try {
-            // ProductService를 통해 해당 상품을 삭제
             productService.deleteProduct(productId);
-            // 삭제가 성공하면 클라이언트에게 성공 메시지를 보냄
             return ResponseEntity.ok("deleted");
         } catch (Exception e) {
-            // 삭제 중에 오류가 발생하면 클라이언트에게 오류 메시지를 보냄
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
         }
     }
 
+    @GetMapping("/edit/{productId}")
+    public String editProductForm(@PathVariable Long productId, Model model) {
+        ProductDTO productDTO = productService.findProductById(productId);
+        model.addAttribute("productDTO", productDTO);
+        model.addAttribute("productId", productId);
+        return "product/editForm";
+    }
 
+    @PostMapping("/edit/{productId}")
+    public String updateProduct(@PathVariable Long productId,
+                                @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
+                                @RequestParam("imageFiles") MultipartFile[] imageFiles,
+                                BindingResult bindingResult,
+                                Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("productId", productId);
+            return "product/editForm";
+        }
+
+        productDTO.setId(productId);
+        productService.updateProduct(productDTO, imageFiles);
+
+        return "redirect:/product/detail/" + productId;
+    }
 }
-

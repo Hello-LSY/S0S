@@ -33,9 +33,15 @@
     <button type="button" onclick="deleteProduct()">상품 삭제</button>
 </form>
 
+<!-- 상품 수정 버튼 추가 -->
+<form id="editProductForm" th:action="@{/product/edit/{productId}(productId=${productDetail.id})}" method="get">
+    <button type="submit">상품 수정</button>
+</form>
+<a th:href="@{/}">Home</a>
+
 <script>
     function addWish() {
-        let productId = document.getElementById("productId").value;
+        let productId = document.getElementById("productIdToWish").value;
         let formData = new FormData();
         formData.append("productId", productId);
 
@@ -57,7 +63,7 @@
     }
 
     function deleteProduct() {
-        let productId = document.getElementById("productId").value;
+        let productId = document.getElementById("productIdToDelete").value;
 
         fetch('/product/delete/' + productId, {
             method: 'POST'

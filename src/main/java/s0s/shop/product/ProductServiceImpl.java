@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import s0s.shop.wish.Wish;
 import s0s.shop.wish.WishRepository;
 
 import java.io.File;
@@ -63,6 +62,44 @@ public class ProductServiceImpl implements ProductService{
         // 상품을 저장
         productRepository.save(product);
     }
+
+    //240529 상품수정 로직 구현
+    @Override
+    @Transactional
+    public void updateProduct(ProductDTO productDTO, MultipartFile[] imageFiles) {
+        Product product = productRepository.findById(productDTO.getId())
+                .orElseThrow(() -> new RuntimeException("해당 아이디에 해당하는 상품을 찾을 수 없습니다."));
+
+        product.updateProduct(productDTO.getProductName(),
+                productDTO.getCategory(),
+                productDTO.getPrice(),
+                productDTO.getDescription()
+        );
+
+        // 기존 이미지를 삭제하고 새로운 이미지를 저장
+        if (imageFiles != null && imageFiles.length > 0) {
+            product.clearImageUrls(); // 기존 이미지 URL 제거
+            for (MultipartFile imageFile : imageFiles) {
+                String savedImageUrl = saveImageFile(imageFile);
+                product.addImageUrl(savedImageUrl);
+            }
+        }
+
+        productRepository.save(product); // 변경된 상품 정보 저장
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("해당 아이디에 해당하는 상품을 찾을 수 없습니다."));
+
+        // 해당 상품의 모든 찜을 삭제
+        wishRepository.deleteAll(product.getWishes());
+        // 상품 삭제
+        productRepository.deleteById(productId);
+    }
+
 
     private String saveImageFile(MultipartFile imageFile) {
         // UUID를 사용하여 파일 이름 생성
@@ -120,18 +157,6 @@ public class ProductServiceImpl implements ProductService{
                 .description(product.getDescription())
                 .imageUrls(product.getImageUrls())
                 .build();
-    }
-
-    @Override
-    @Transactional
-    public void deleteProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("해당 아이디에 해당하는 상품을 찾을 수 없습니다."));
-
-        // 해당 상품의 모든 찜을 삭제
-        wishRepository.deleteAll(product.getWishes());
-        // 상품 삭제
-        productRepository.deleteById(productId);
     }
 
 
